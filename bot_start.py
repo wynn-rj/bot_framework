@@ -8,14 +8,14 @@ def setup_bot(bot, prefix, config):
     """Setup the events and commands the bot responds to"""
     result_msg = f'Bot started!\nVersion: {bot_version}\n' \
                  f'Framework Version: {__version__}\n' \
-                  'Extensions:\n'
+                  'Extensions:'
     for extension in config.extensions:
         result = "Success"
         try:
             bot.load_extension(extension)
         except commands.ExtensionError as exception:
             result = str(exception)
-        result_msg += f' - {extension}: {result}'
+        result_msg += f'\n - {extension}: {result}'
 
     @bot.event
     async def on_ready():
