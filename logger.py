@@ -18,7 +18,9 @@ class Logger():
             return
         for channel_id in Logger._instance.config.log_channels:
             channel = Logger._instance.bot.get_channel(channel_id)
-            await channel.send(msg)
+            if channel:
+                await channel.send(msg)
+        print(msg)
 
     @staticmethod
     def update_logging():
