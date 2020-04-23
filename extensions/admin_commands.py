@@ -65,12 +65,13 @@ class AdminCommands(commands.Cog, command_attrs=dict(hidden=True)):
             self._update_lock.release()
 
     async def safe_update(self, ctx):
-        result = subprocess.run(['git', 'status'], stdout=subprocess.PIPE)
-        if 'Your branch is up to date' in str(result.stdout):
+        result = subprocess.run(['git', 'remote', 'show', 'origin'],
+                                stdout=subprocess.PIPE)
+        if 'up to date' in str(result.stdout):
             await ctx.send('No new version found')
             return
         await ctx.send('Updating bot')
-        result = subprocess.run(['git', 'pull'])
+        result = subprocess.run(['git', 'pull', '--recurse-submodules'])
         if result.returncode != 0:
             await ctx.send('Failed to update bot')
             await Logger.log(result.stdout)
