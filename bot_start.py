@@ -1,5 +1,6 @@
 """A bot starter framework"""
 import os
+import sys
 import discord
 from discord.ext import commands
 from bot_framework import __version__, JsonConfigReader, Logger, bot_version
@@ -23,6 +24,24 @@ def setup_bot(bot, prefix, config):
         await bot.change_presence(
             activity=discord.Game(name=f'{config.playing} | {prefix}help'))
         await Logger.log(result_msg)
+
+    @bot.event
+    async def on_command_error(ctx, error):
+        if isinstance(error, commands.CommandNotFound):
+            return
+        if isinstance(error, commands.BadArgument):
+            await ctx.send('Bad Argument')
+        if isinstance(error, commands.TooManyArguments):
+            await ctx.send('Too many arguments')
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send('Missing required arguments')
+        await Logger.log(str(error))
+
+    @bot.event
+    async def on_error(event, *args, **kwargs):
+        msg = '**Error occured in:** {event}\nDetails:\n{sys.exc_info()}'
+        await Logger.log(msg)
+
 
 def start_bot():
     """Start the discord bot"""
