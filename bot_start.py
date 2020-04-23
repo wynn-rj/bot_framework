@@ -27,14 +27,18 @@ def setup_bot(bot, prefix, config):
 
     @bot.event
     async def on_command_error(ctx, error):
-        if isinstance(error, commands.CommandNotFound):
-            return
-        if isinstance(error, commands.BadArgument):
-            await ctx.send('Bad Argument')
-        if isinstance(error, commands.TooManyArguments):
-            await ctx.send('Too many arguments')
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send('Missing required arguments')
+        type_responses = {
+            commands.CommandNotFound: None,
+            commands.BadArgument: 'Bad Argument',
+            commands.TooManyArguments: 'Too many arguments',
+            commands.MissingRequiredArgument: 'Missing required arguments',
+        }
+
+        for error_type, msg in type_responses.items():
+            if isinstance(error, error_type):
+                if msg:
+                    await ctx.send(msg)
+                return
         await Logger.log(str(error))
 
     @bot.event
