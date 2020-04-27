@@ -16,18 +16,18 @@ class UpdateCommands(commands.Cog, command_attrs=dict(hidden=True)):
         return not str(ctx.author) in self.reader.data.admins
 
     @commands.group(pass_context=True)
-    async def admin(self, ctx):
+    async def update(self, ctx):
         pass
 
-    @admin.command()
+    @update.command()
     async def help(self, ctx):
         if self._allow_command(ctx):
             return
         await ctx.send('Commands:\n - ' + '\n - '.join(
             [str(cmd) for cmd in self.get_commands()[0].commands]))
 
-    @admin.command(name='reload_extensions')
-    async def reload_extensions(self, ctx):
+    @update.command()
+    async def extensions(self, ctx):
         if self._allow_command(ctx):
             return
         if os.path.exists('/app/extensions/.git'):
