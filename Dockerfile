@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
 
 COPY . /app
 
-RUN mkdir -p /data /extensions /config
+RUN mkdir -p /data /app/extensions /config
 
 RUN pip3 install -r /app/requirements.txt
 

@@ -2,6 +2,7 @@
 
 """Pamus, A discord bot framework"""
 import os
+import subprocess
 import discord
 from discord.ext import commands
 from utils.config_reader import YAMLConfigReader
@@ -37,6 +38,9 @@ def main():
     })
     bot = commands.Bot(command_prefix=config.data.prefix)
     Logger.initialize(bot)
+    if os.path.exists('/app/extensions/requirements.txt'):
+        subprocess.run(['pip3', 'install', '-r',
+                        '/app/extensions/requirements.txt'], check=True)
     setup_bot(bot, config.data.prefix, config)
     bot.run(os.getenv('DISCORD_TOKEN'))
 
