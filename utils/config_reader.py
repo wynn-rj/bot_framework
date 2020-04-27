@@ -1,4 +1,5 @@
 import os
+import copy
 import threading
 import types
 import yaml
@@ -29,7 +30,7 @@ class YAMLConfigReader:
             self._last_changed = stamp
             with open(self._config_file, 'r') as config:
                 self._data = yaml.safe_load(config) or dict()
-            data_clone = dict(self.defaults)
+            data_clone = copy.deepcopy(self.defaults)
             data_clone.update(self._data)
             for key, value in self._data.items():
                 if isinstance(value, dict) and 'release' in value \
@@ -45,7 +46,7 @@ class YAMLConfigReader:
             for key, value in vars(self.data).items():
                 if key in self.defaults and self.defaults[key] == value:
                     continue
-                cur_val = self._data[key]
+                cur_val = None if not key in self._data else self._data[key]
                 if isinstance(cur_val, dict) and 'release' in cur_val \
                         and 'dev' in cur_val:
                     self._data[key][self._build] = value
