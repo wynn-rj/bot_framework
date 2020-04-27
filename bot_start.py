@@ -1,16 +1,18 @@
-"""A bot starter framework"""
+#! /usr/bin/env python3
+
+"""Pamus, A discord bot framework"""
 import os
-import sys
 import discord
 from discord.ext import commands
-from bot_framework import __version__, JsonConfigReader, Logger, bot_version
+from utils.config_reader import YAMLConfigReader
+from utils.logger import Logger
+from version import __version__
 
 def setup_bot(bot, prefix, config):
-    """Setup the events and commands the bot responds to"""
-    result_msg = f'Bot started!\nVersion: {bot_version}\n' \
-                 f'Framework Version: {__version__}\n' \
-                  'Extensions:'
-    for extension in config.extensions:
+    """Sets up the events and commands the bot responds to via extensions"""
+    result_msg = 'Bot started!\nUsing Pamus framework Version: ' \
+                 f'{__version__}\nExtensions:'
+    for extension in config.data.extensions:
         result = "Success"
         try:
             bot.load_extension(extension)
@@ -21,36 +23,22 @@ def setup_bot(bot, prefix, config):
     @bot.event
     async def on_ready():
         print(f'{bot.user.name} has connected to Discord')
-        await bot.change_presence(
-            activity=discord.Game(name=f'{config.playing} | {prefix}help'))
+        if config.data.playing:
+            await bot.change_presence(activity=discord.Game(
+                config.data.playing.replace('{prefix}', prefix)))
         await Logger.log(result_msg)
 
-    @bot.event
-    async def on_command_error(ctx, error):
-        type_responses = {
-            commands.CommandNotFound: None,
-            commands.BadArgument: 'Bad Argument',
-            commands.TooManyArguments: 'Too many arguments',
-            commands.MissingRequiredArgument: 'Missing required arguments',
-        }
-
-        for error_type, msg in type_responses.items():
-            if isinstance(error, error_type):
-                if msg:
-                    await ctx.send(msg)
-                return
-        await Logger.log(str(error))
-
-    @bot.event
-    async def on_error(event, *args, **kwargs):
-        msg = '**Error occured in:** {event}\nDetails:\n{sys.exc_info()}'
-        await Logger.log(msg)
-
-
-def start_bot():
+def main():
     """Start the discord bot"""
-    config = JsonConfigReader()
-    bot = commands.Bot(command_prefix=config.prefix)
+    config = YAMLConfigReader(defaults={
+        'prefix': '!',
+        'playing': None,
+        'extensions': []
+    })
+    bot = commands.Bot(command_prefix=config.data.prefix)
     Logger.initialize(bot)
-    setup_bot(bot, config.prefix, config)
+    setup_bot(bot, config.data.prefix, config)
     bot.run(os.getenv('DISCORD_TOKEN'))
+
+if __name__ == '__main__':
+    main()
