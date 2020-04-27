@@ -29,7 +29,8 @@ class YAMLConfigReader:
             self._last_changed = stamp
             with open(self._config_file, 'r') as config:
                 self._data = yaml.safe_load(config) or dict()
-            data_clone = dict(self.defaults).update(self._data)
+            data_clone = dict(self.defaults)
+            data_clone.update(self._data)
             for key, value in self._data.items():
                 if isinstance(value, dict) and 'release' in value \
                         and 'dev' in value:
