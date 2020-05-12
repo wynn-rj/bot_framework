@@ -35,13 +35,16 @@ class UpdateCommands(commands.Cog, command_attrs=dict(hidden=True)):
             if res.returncode != 0:
                 Logger.log('Failed to reload update extensions')
         config = YAMLConfigReader().data
-        result_msg = 'Extensions have been reloaderd:'
+        result_msg = 'Extensions have been reloaded:'
         for extension in config.extensions:
             result = "Success"
             try:
                 self.bot.reload_extension(extension)
             except commands.ExtensionNotLoaded:
-                self.bot.load_extensions(extension)
+                try:
+                    self.bot.load_extension(extension)
+                except commands.ExtensionError as exception:
+                    result = str(exception)
             except commands.ExtensionError as exception:
                 result = str(exception)
             result_msg += f'\n - {extension}: {result}'
