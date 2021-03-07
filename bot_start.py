@@ -27,14 +27,16 @@ def setup_bot(bot, prefix, config):
         if config.data.playing:
             await bot.change_presence(activity=discord.Game(
                 config.data.playing.replace('{prefix}', prefix)))
-        await Logger.log(result_msg)
+        if config.log_on_startup:
+            await Logger.log(result_msg)
 
 def main():
     """Start the discord bot"""
     config = YAMLConfigReader(defaults={
         'prefix': '!',
         'playing': None,
-        'extensions': []
+        'extensions': [],
+        'log_on_startup': True,
     })
     bot = commands.Bot(command_prefix=config.data.prefix)
     Logger.initialize(bot)
