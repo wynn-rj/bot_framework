@@ -13,12 +13,14 @@ def setup_bot(bot, prefix, config):
     """Sets up the events and commands the bot responds to via extensions"""
     result_msg = 'Bot started!\nUsing Pamus framework Version: ' \
                  f'{__version__}\nExtensions:'
+    error_occurred = False
     for extension in config.data.extensions:
         result = "Success"
         try:
             bot.load_extension(extension)
         except commands.ExtensionError as exception:
             result = str(exception)
+            error_occurred = True
         result_msg += f'\n - {extension}: {result}'
 
     @bot.event
@@ -27,7 +29,7 @@ def setup_bot(bot, prefix, config):
         if config.data.playing:
             await bot.change_presence(activity=discord.Game(
                 config.data.playing.replace('{prefix}', prefix)))
-        if config.log_on_startup:
+        if error_occurred or config.data.log_on_successful_startup:
             await Logger.log(result_msg)
 
 def main():
@@ -36,7 +38,7 @@ def main():
         'prefix': '!',
         'playing': None,
         'extensions': [],
-        'log_on_startup': True,
+        'log_on_successful_startup': True,
     })
     bot = commands.Bot(command_prefix=config.data.prefix)
     Logger.initialize(bot)
